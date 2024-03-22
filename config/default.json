@@ -1,0 +1,4 @@
+{
+  "mongoURI": "mongodb+srv://studydb:studydb@cluster.kaoh5aa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster",
+  "jwtSecret": "secrettoken"
+}
