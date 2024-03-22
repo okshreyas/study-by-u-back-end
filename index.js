@@ -1,29 +1,15 @@
+// Removed the registration code for sample user creation
+
 const express = require("express");
 const path = require("path");
 const connectDB = require("./config/db");
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
-const User = require("./models/User");
-
-// Sample user data
-const sampleUserData = {
-  name: "John Doe",
-  email: "john@example.com",
-  password: "password123"
-};
-
-// Create a new user
-User.create(sampleUserData)
-  .then(user => {
-    console.log("Sample user created:", user);
-  })
-  .catch(err => {
-    console.error("Error creating sample user:", err);
-  });
-
+const User = require("./Models/User");
 
 const app = express();
-
+const bodyParser = require("body-parser"); // Import body-parser
+app.use(bodyParser.urlencoded({ extended: true }))
 // Connect to MongoDB
 connectDB();
 
@@ -42,10 +28,8 @@ app.get("/login", (req, res) => {
 
 // Define Routes
 app.get("/register", (req, res) => {
-  res.render("register", { title: "Register" }); // Removed forward slash before "register"
+  res.render("register", { title: "Register" });
 });
-
-
 
 // Register Route
 app.post(
@@ -82,7 +66,7 @@ app.post(
 
       await user.save();
 
-      res.send("User registered successfully!");
+      res.status(201).json({ message: "User registered successfully!" });
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Server Error");
@@ -90,7 +74,7 @@ app.post(
   }
 );
 
-// Login Route
+// entire Login Route with console.log
 app.post(
   "/login",
   [
@@ -98,35 +82,42 @@ app.post(
     check("password", "Password is required").exists()
   ],
   async (req, res) => {
+    console.log("Login route hit1"); // HIT
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    console.log(errors); 
 
+    // if (!errors.isEmpty()) {
+    //   return res.status(400).json({ errors: errors.array() });
+    // }
+    console.log("Login route hit2");
     const { email, password } = req.body;
 
     try {
       let user = await User.findOne({ email });
-
+      console.log("Login route hit3");
       if (!user) {
         return res.status(400).json({ errors: [{ msg: "Invalid credentials" }] });
+        console.log("Login route hit4");
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
-
+      console.log("Login route hit5");
       if (!isMatch) {
         return res.status(400).json({ errors: [{ msg: "Invalid credentials" }] });
+        console.log("Login route hit6");
       }
 
-      // For simplicity, you can generate a JWT token here and send it back for authentication
-
-      res.send("User logged in successfully!");
+      res.json({ message: "User logged in successfully!" });
+      console.log("Login route hit7");
     } catch (err) {
       console.error(err.message);
+      console.log("Login route hit8");
       res.status(500).send("Server Error");
     }
   }
 );
+
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
