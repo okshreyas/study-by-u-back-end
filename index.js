@@ -2,6 +2,10 @@
 
 const express = require("express");
 const path = require("path");
+
+const jwt = require("jsonwebtoken");
+const config = require("config");
+
 const connectDB = require("./config/db");
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
@@ -9,6 +13,7 @@ const User = require("./Models/User");
 const cors = require("cors");
 const app = express();
 const bodyParser = require("body-parser"); // Import body-parser
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Connect to MongoDB
@@ -85,7 +90,23 @@ app.post(
 
       await user.save();
 
-      res.status(201).json({ message: "User registered successfully!" });
+      // JWT
+
+      const payload = {
+        user: { id: user.id },
+      };
+
+      jwt.sign(
+        payload,
+        config.get("jwtSecret"),
+        { expiresIn: 3600 },
+        (err, token) => {
+          if (err) throw err;
+          res.json({ token });
+        }
+      );
+
+      // res.status(201).json({ message: "User registered successfully!" });
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Server Error");
@@ -129,8 +150,21 @@ app.post(
           .json({ errors: [{ msg: "Invalid credentials" }] });
         console.log("Login route hit6");
       }
+      const payload = {
+        user: { id: user.id },
+      };
 
-      res.json({ message: "User logged in successfully!" });
+      jwt.sign(
+        payload,
+        config.get("jwtSecret"),
+        { expiresIn: 3600 },
+        (err, token) => {
+          if (err) throw err;
+          res.json({ token });
+        }
+      );
+
+      // res.json({ message: "User logged in successfully!" });
       console.log("Login route hit7");
     } catch (err) {
       console.error(err.message);
