@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "node server",
-    "server": "nodemon index"
+    "server": "nodemon index",
+    "client": " cd .. && cd study-by-u-front-end- && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+    
   },
   "author": "",
   "license": "MIT",
